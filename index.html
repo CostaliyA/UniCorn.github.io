@@ -1,112 +1,537 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="utf-8">
+  <meta name="description" content="UniCorn: UniCorn: Towards Self-Improving Unified Multimodal Models through Self-Generated Supervision">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>UniCorn</title>
-  <meta name="description" content="UniCorn: UniCorn: Towards Self-Improving Unified Multimodal Models through Self-Generated Supervision" />
 
-  <!-- Simple styling -->
+  <link rel="icon" href="assets/UniCorn_LOGO.png" type="image/png">
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans:400,500,700|Noto+Sans:400,500" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      options: {
+        ignoreHtmlClass: 'tex2jax_ignore',
+        processHtmlClass: 'tex2jax_process'
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
   <style>
+    :root {
+      --color-primary: #85acdc;
+      --color-primary-dark: #7293bc;
+      --color-text: #2c3e50;
+      --color-bg: #FAFAFA;
+      
+      --color-think: #92c5ef;
+      --color-gen: #b5dec8;
+      --color-ref: #9C7BD8;
+      --color-align: #7293bc;
+    }
+
+    html { scroll-behavior: smooth; }
+
     body {
+      font-family: 'Google Sans', sans-serif;
+      color: var(--color-text);
+      background-color: var(--color-bg);
+      line-height: 1.6;
       margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      background: #0f1220;
-      color: #ffffff;
     }
 
     .container {
-      max-width: 960px;
+      max-width: 1000px;
       margin: 0 auto;
-      padding: 80px 24px;
+      padding: 40px 20px;
+    }
+
+    /* --- Header Layout Fixed --- */
+    .header-container { 
+      text-align: center; 
+      margin-bottom: 40px; 
+    }
+
+    .title {
+      font-size: 2.5rem;
+      line-height: 1.2;
+      margin: 0 0 1.5rem 0;
+      font-weight: 800;
+    }
+
+    /* Flex Container for Logo + Main Title */
+    .main-title-row {
+      display: flex;            /* Enable Flexbox */
+      align-items: center;      /* Vertically center */
+      justify-content: center;  /* Horizontally center */
+      gap: 15px;                /* Space between logo and text */
+      margin-bottom: 5px;
+    }
+
+    .project-logo {
+      /* Removed absolute positioning that was hiding the image */
+      width: auto;      /* Width determined by height */
+      height: 1.5em;    /* Match text size approx */
+      object-fit: contain;
+    }
+    
+    .title-main { 
+      color: #6591de; 
+      font-style: italic; 
+    }
+    .title-sub { 
+      color: #000000; 
+      font-size: 0.75em; 
+      display: block; 
+      margin-top: 8px; 
+    }
+
+    .author-block { font-size: 1.15rem; margin-bottom: 8px; }
+    .author-block a { color: #222; text-decoration: none; border-bottom: 1px dotted #888; transition: 0.2s; }
+    .author-block a:hover { color: var(--color-primary-dark); }
+    
+    .affiliation-block { font-size: 1rem; color: #666; margin-bottom: 2rem; }
+    .note { font-size: 0.85rem; color: #999; }
+
+    /* Buttons */
+    .publication-links {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .link-block a {
+      display: inline-flex;
+      align-items: center;
+      background: #363636;
+      color: #fff;
+      padding: 10px 24px;
+      border-radius: 99px;
+      text-decoration: none;
+      font-size: 1rem;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .link-block a:hover {
+      background: var(--color-primary);
+      transform: translateY(-2px);
+      box-shadow: 0 5px 10px rgba(0,0,0,0.15);
+    }
+    .icon { margin-right: 8px; }
+
+    /* Sections */
+    .section {
+      background: #fff;
+      padding: 35px;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+      margin-bottom: 35px;
+    }
+    .section-title {
       text-align: center;
+      font-size: 1.8rem;
+      margin-bottom: 25px;
+      position: relative;
+      font-weight: 700;
+      color: #444;
+    }
+    .section-title::after {
+      content: ''; display: block; width: 50px; height: 4px;
+      background: var(--color-primary); margin: 12px auto 0; border-radius: 2px;
     }
 
-    h1 {
-      font-size: 3rem;
-      margin-bottom: 0.5rem;
-      letter-spacing: 0.02em;
+    .content-text {
+      font-size: 1.1rem;
+      text-align: justify;
+      color: #4a4a4a;
+    }
+    .highlight-term { color: var(--color-primary-dark); font-weight: 700; }
+
+    /* Images */
+    .image-container { text-align: center; margin: 10px 0; }
+    .image-container img {
+      max-width: 100%;
+      border-radius: 8px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+    .video-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin: 10px 0;
     }
 
-    h2 {
-      font-size: 1.3rem;
-      font-weight: 400;
-      color: #cfd3ff;
-      margin-bottom: 2.5rem;
+    .video-grid video {
+      width: 100%;
+      border-radius: 8px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+
+    .teaser-img { width: 85%; } 
+    
+    .caption {
+      font-size: 0.95rem;
+      color: #666;
+      margin-top: 15px;
+      text-align: left;
+      font-style: italic;
+      max-width: 90%;
+      margin: 15px auto 0 auto;
+    }
+
+    /* --- Method Grid --- */
+    .method-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr); 
+      gap: 20px;
+      margin-top: 30px;
+    }
+
+    .method-card {
+      background: #fff;
+      border: 1px solid #eee;
+      padding: 25px;
+      border-radius: 12px;
+      transition: transform 0.2s;
+      display: flex;
+      flex-direction: column;
+      min-width: 0; 
+    }
+    .method-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    }
+    
+    .method-think { border-top: 5px solid var(--color-think); }
+    .method-gen   { border-top: 5px solid var(--color-gen); }
+    .method-ref   { border-top: 5px solid var(--color-ref); }
+    .method-align   { border-top: 5px solid var(--color-align); }
+
+    .method-card h3 { 
+      margin-top: 0; 
+      font-size: 1.25rem; 
+      color: #333; 
+      margin-bottom: 10px;
+    }
+    
+    .method-card p {
+      font-size: 0.95rem;
+      color: #555;
+      margin-bottom: 10px;
+      flex-grow: 1; 
+      word-wrap: break-word; 
     }
 
     .badge {
+      display: inline-block; 
+      padding: 4px 10px; 
+      border-radius: 6px;
+      font-size: 0.75rem; 
+      font-weight: bold; 
+      text-transform: uppercase; 
+      letter-spacing: 0.5px;
+      margin-bottom: 10px; 
+      color: #fff;
+      white-space: nowrap;
+      width: fit-content;
+    }
+
+    /* Visualizations */
+    .vis-card {
+      margin-bottom: 40px;
+      padding: 30px;
+      border-radius: 16px;
+      text-align: center;
+      background: #fff;
+      border: 1px solid rgba(0,0,0,0.04);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+      transition: transform 0.3s;
+    }
+    .vis-card:hover { transform: scale(1.005); box-shadow: 0 8px 30px rgba(0,0,0,0.08); }
+
+    .vis-header {
       display: inline-block;
-      padding: 6px 14px;
-      border-radius: 999px;
-      background: rgba(255,255,255,0.12);
-      font-size: 0.9rem;
-      margin-bottom: 1.5rem;
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: 15px;
+      padding: 6px 18px;
+      border-radius: 50px;
     }
 
-    .links {
-      display: flex;
-      justify-content: center;
-      gap: 18px;
-      margin-top: 2rem;
-      flex-wrap: wrap;
-    }
-
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 12px 20px;
+    /* BibTeX */
+    pre {
+      background-color: #2d2d2d;
+      color: #ccc;
+      padding: 20px;
       border-radius: 10px;
-      text-decoration: none;
-      color: #0f1220;
-      background: #a5b4ff;
-      font-weight: 600;
-      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      font-size: 0.85rem;
+      overflow-x: auto;
+      line-height: 1.5;
+      border: 1px solid #444;
     }
 
-    .btn.secondary {
-      background: #ffffff;
-    }
-
-    .btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 20px rgba(0,0,0,0.35);
-    }
-
-    footer {
-      margin-top: 80px;
-      font-size: 0.9rem;
-      color: #9aa0ff;
-    }
-
-    footer a {
-      color: #cfd3ff;
-      text-decoration: none;
+    @media (max-width: 768px) {
+      .main-title-row { flex-direction: column; } /* Stack logo on mobile */
+      .title { font-size: 2rem; }
+      .teaser-img { width: 90%; }
+      .container { padding: 20px 15px; }
+      .method-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="badge">Test Page</div>
-    <h1>UniCorn</h1>
-    <h2>Unified Compositional Reasoning for Image Generation</h2>
 
-    <p>
-      This is a minimal test webpage for <strong>UniCorn</strong>.
-      It is designed to be clean, lightweight, and suitable for GitHub Pages.
-    </p>
+<div class="container">
 
-    <div class="links">
-      <a class="btn" href="https://github.com/UniCorn-project" target="_blank">GitHub</a>
-      <a class="btn secondary" href="https://huggingface.co" target="_blank">Hugging Face</a>
+  <div class="header-container">
+    <h1 class="title">
+        <div class="main-title-row">
+          <img src="assets/UniCorn_LOGO.png" alt="Logo" class="project-logo" style="height: 3em; width: auto;">
+          <!-- <span class="title-main">UniCorn:</span> -->
+        </div>
+        <span class="title-sub">UniCorn: Towards Self-Improving Unified\\ Multimodal Models through Self-Generated Supervision</span>
+    </h1>
+    
+    <div class="author-block">
+<a href="#">Ruiyan Han<sup>2*</sup></a>,
+<a href="https://costaliya.github.io/">Zhen Fang<sup>1*†</sup></a>,
+<a href="#">Xinyu Sun<sup>2*</sup></a>,
+<a href="#">Yuchen Ma<sup>2</sup></a>,
+<a href="#">Ziheng Wang<sup>2</sup></a>,
+<a href="https://scholar.google.com.hk/citations?user=XJmAr8EAAAAJ&hl=zh-CN">Yu Zeng<sup>1†</sup></a>,<br>
+<a href="https://lovesnowbest.site/">Zehui Chen<sup>1</sup></a>,
+<a href="https://lin-chen.site/">Lin Chen<sup>1</sup></a>,
+<a href="#">Wenxuan Huang<sup>3,4</sup></a>,
+<a href="#">Weijie Xu<sup>5</sup></a>,
+<a href="#">Yi Cao<sup>6</sup></a>,
+<a href="https://scholar.google.co.uk/citations?user=r6CvuOUAAAAJ&hl=en">Feng Zhao<sup>1‡</sup></a>
+
+
     </div>
 
-    <footer>
-      <p>
-        © 2026 UniCorn Project · Hosted on <a href="https://github.io" target="_blank">GitHub Pages</a>
-      </p>
-    </footer>
+<div class="affiliation-block">
+  <div>
+    <sup>1</sup>MoE Key Lab of BIPC, USTC &nbsp;&nbsp; 
+    <sup>2</sup>FDU &nbsp;&nbsp; 
+    <sup>3</sup>ECNU &nbsp;&nbsp; 
+    <sup>4</sup>CUHK &nbsp;&nbsp; 
+    <sup>5</sup>NJU &nbsp;&nbsp; 
+    <sup>6</sup>SUDA
   </div>
+  
+  <div class="note">
+    <sup>*</sup>Equal Contribution &nbsp;&nbsp; 
+    <sup>†</sup>Equal Contribution  &nbsp;&nbsp; 
+    <sup>‡</sup>Corresponding Authors
+  </div>
+</div>
+
+    <div class="publication-links">
+      <span class="link-block">
+        <a href="https://arxiv.org/pdf/2601.03193" target="_blank">
+          <span class="icon"><i class="fas fa-file-pdf"></i></span>
+          <span>Paper</span>
+        </a>
+      </span>
+      <span class="link-block">
+        <a href="https://github.com/Hungryyan1/UniCorn" target="_blank">
+          <span class="icon"><i class="fab fa-github"></i></span>
+          <span>Code</span>
+        </a>
+      </span>
+      <span class="link-block">
+        <a href="https://github.com/shierlouz/Unicycle" target="_blank">
+          <span class="icon"><i class="fas fa-database"></i></span>
+          <span>Benchmark</span>
+        </a>
+      </span>
+          <span class="link-block">
+        <a href="https://huggingface.co/CostaliyA/UniCorn" target="_blank">
+          <span class="icon"><i class="fas fa-robot"></i></span>
+          <span>Model</span>
+        </a>
+      </span>
+    </div>
+  </div>
+
+  <!-- <div class="section">
+    <div class="image-container">
+      <img src="figure/teaser.jpg" alt="Teaser Image" class="teaser-img">
+    </div>
+    <div class="caption">
+
+<b>DualVLA</b> first constructs a sparse, information-dense embodied reasoning dataset by combining video event prediction with kinematic cues, mitigating the negative impact of redundant reasoning on action generation. It then adopts a dual-teacher strategy: an action teacher offering fine-grained supervision for manipulation, and a reasoning teacher maintaining general reasoning capability. Together, these components enable <b>DualVLA</b> to achieve strong performance in both simulation and real-world robotic evaluations.
+
+
+    </div>
+  </div> -->
+
+<div class="section">
+  <h2 class="section-title">Abstract</h2>
+  <div class="content-text">
+    <p>
+      While Unified Multimodal Models (<strong>UMMs</strong>) have achieved remarkable success in cross-modal comprehension, a significant gap persists in their ability to leverage such internal knowledge for high-quality generation. We formalize this discrepancy as <em>Conduction Aphasia</em>, a phenomenon where models accurately interpret multimodal inputs but struggle to translate that understanding into faithful and controllable synthesis.
+    </p>
+    <p>
+      To address this, we propose <b style="color: #800080;">UniCorn</b>, a simple yet elegant self-improvement framework that <b>eliminates the need for external data or teacher supervision</b>. By partitioning a single UMM into three collaborative roles: <b>Proposer</b>, <b>Solver</b>, and <b>Judge</b>, <b style="color: #800080;">UniCorn</b> generates high-quality interactions via self-play and employs cognitive pattern reconstruction to distill latent understanding into explicit generative signals.
+    </p>
+    <p>
+      To validate the restoration of multimodal coherence, we introduce <b>UniEval</b>, a cycle-consistency benchmark based on a <i>Text &rarr; Image &rarr; Text</i> reconstruction loop. Extensive experiments demonstrate that <b style="color: #800080;">UniCorn</b> achieves comprehensive and substantial improvements over the base model across six general image generation benchmarks. Notably, it achieves <b>state-of-the-art (SOTA)</b> performance on <b>TIIF (73.8)</b>, <b>DPG (86.8)</b>, <b>CompBench (88.5)</b>, and <b>UniEval (46.5)</b>, while further delivering substantial gains of <b>+5.0</b> on <b>WISE</b> and <b>+6.5</b> on <b>OneIG</b>. These results highlight that our method significantly enhances T2I generation while maintaining robust comprehension, demonstrating the scalability of fully self-supervised refinement for unified multimodal intelligence.
+    </p>
+  </div>
+<div class="section">
+  <h2 class="section-title">Motivation</h2>
+<div class="image-container">
+  <img src="assets/intro3.png" alt="Intro" style="height: 300px; width: auto;">
+</div>
+  <div class="content-text">
+    <p>
+      Unified Multimodal Models (UMMs) often exhibit a significant <b>understanding-generation gap</b>: they can accurately critique errors in an image yet fail to generate the same scene correctly. This phenomenon, which we term <b>conduction aphasia</b>, motivates <b style="color: #800080;">UniCorn</b> to leverage the model’s <b>superior internal understanding</b> to refine its generative capabilities through self-contained feedback. Quantitative evaluations on benchmarks like Omini-RewardBench and MMRB2, normalized against GPT-4, further validate this discrepancy and the effectiveness of our self-improvement approach.
+    </p>
+  </div>
+<!-- </div>
+
+  <div class="section">
+    <h2 class="section-title">Framework</h2>
+    
+    <div class="image-container">
+      <img src="assets/framework.png" alt="UniCorn Framework">
+    </div>
+    <div class="caption">
+
+  <p style="font-size:1rem;line-height:1.6;color:#333;">
+    <strong>Overview of the UniCorn Framework.</strong> (a) Illustrates the self-multi-agent collaboration for high-quality
+data sampling. (b) Details the Cognitive Pattern Reconstruction process, which reorganizes data to facilitate robust
+and efficient learning. (c) Presents the UniCycle benchmark evaluation, verifying whether the model can accurately
+reconstruct key textual information from its own generated content.
+  </p>
+    </div>
+
+  </div> -->
+
+
+  <div class="section">
+    <h2 class="section-title">Framework</h2>
+    
+    <div class="image-container">
+      <img src="assets/framework.png" alt="VLA Score Framework">
+    </div>
+    <div class="caption">
+
+  <p style="font-size:1rem;line-height:1.6;color:#333;">
+<p>
+    <strong>Overview of the UniCorn Framework.</strong> (a) Illustrates the self-multi-agent collaboration for high-quality
+data sampling. (b) Details the Cognitive Pattern Reconstruction process, which reorganizes data to facilitate robust
+and efficient learning. (c) Presents the UniCycle benchmark evaluation, verifying whether the model can accurately
+reconstruct key textual information from its own generated content.
+</p>
+
+  </p>
+    </div>
+
+    <div class="method-grid">
+        <div class="method-card method-think">
+          <span class="badge" style="background: var(--color-think); color: #555;">Generation</span>
+          <h3>$G$: T->I</h3>
+          <p>
+           Synthesizing images that strictly follow complex textual instructions.
+          </p>
+        </div>
+    
+        <div class="method-card method-gen">
+          <span class="badge" style="background: var(--color-gen);">Caption</span>
+          <h3>$C$: I->T</h3>
+          <p>
+          Describing visual content to align internal knowledge with generation.
+          </p>
+        </div>
+    
+        <div class="method-card method-ref">
+          <span class="badge" style="background: var(--color-ref);">Judgement</span>
+          <h3>$J$: I,T->T</h3>
+          <p>
+              Evaluating and scoring the quality and alignment of generated images.
+          </p>
+        </div>
+        <div class="method-card method-align">
+          <span class="badge" style="background: var(--color-align);">Reflection</span>
+          <h3>$R$: I,T->I</h3>
+          <p>
+            Reasoning about errors and providing feedback for iterative self-improvement.
+          </p>
+        </div>
+      </div>
+      <br>
+          <div class="caption">
+
+</div>
+
+</div>
+  <div class="section" id="visuals" style="background: transparent; box-shadow: none; padding: 0;">
+    <h2 class="section-title">Results</h2>
+
+    <div class="vis-card">
+      <div class="vis-header" style="background: #FFF3E0; color: #E67E22;">
+        <i class="fas fa-gamepad"></i> Quantitative Results
+      </div>
+      <div class="image-container">
+        <img src="assets/table.png" alt="simplerenv">
+      </div>
+      <div class="caption">
+   <p>
+      Evaluation results across six benchmarks—TIIF, WISE, OneIG, CompBench, DPG, and Geneval—demonstrate that <b style="color: #800080;">UniCorn</b> achieves highly competitive performance. Our method significantly enhances <b>fine-grained instruction following</b> and robustness to short prompts. On the comprehensive OneIG benchmark, it yields a <b>6.5-point overall improvement</b>, driven by a remarkable 22.4-point gain in the Text subtask.
+    </p>
+    <p>
+      Furthermore, <b style="color: #800080;">UniCorn</b> effectively bridges the gap between structured understanding and faithful synthesis, with substantial gains in <b>Numeracy (+13.1)</b> and <b>3D Spatial (+6.1)</b> tasks. Notably, it surpasses <b>GPT-4o</b> on the DPG benchmark (86.8 vs 86.2). These results consistently show that our self-play framework enables UMMs to achieve robust, controllable generation that <b>rivals state-of-the-art closed-source models</b>.
+    </p>
+      </div>
+    </div>
+    <div class="vis-card">
+      <div class="vis-header" style="background: #F3E5F5; color: #8E24AA;">
+        <i class="fas fa-robot"></i> Qualitative results
+      </div>
+      <div class="image-container">
+        <img src="assets/vis.png" alt="real">
+      </div>
+      <div class="caption">
+      Visualization results of UniCorn at 1024×1024 resolution.
+      </div>
+    </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <div class="section">
+    <h2 class="section-title">BibTeX</h2>
+    <pre><code>@misc{han2026unicornselfimprovingunifiedmultimodal,
+      title={UniCorn: Towards Self-Improving Unified Multimodal Models through Self-Generated Supervision}, 
+      author={Ruiyan Han and Zhen Fang and XinYu Sun and Yuchen Ma and Ziheng Wang and Yu Zeng and Zehui Chen and Lin Chen and Wenxuan Huang and Wei-Jie Xu and Yi Cao and Feng Zhao},
+      year={2026},
+      eprint={2601.03193},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV},
+      url={https://arxiv.org/abs/2601.03193}, 
+}</code></pre>
+  </div>
+
+  <footer style="text-align: center; padding: 30px 0; color: #999; font-size: 0.9rem;">
+    <p>
+    <span style="font-size: 0.8rem;">This website is adapted from <a href="https://costaliya.github.io/DualVLA/" style="color: #999;">DualVLA, <a href="https://think-while-gen.github.io/" style="color: #999;">TwiG</a> and <a href="https://github.com/nerfies/nerfies.github.io" style="color: #999;">Nerfies</a>. <br>Thank you for their contributions to the community.</span>
+    </p>
+  </footer>
+
+</div>
+
 </body>
 </html>
